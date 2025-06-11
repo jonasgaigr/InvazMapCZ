@@ -21,6 +21,15 @@ min_pts <- 5     # body
 coords_mat <- st_coordinates(data_sf)
 db <- dbscan(coords_mat, eps = eps_val, minPts = min_pts)
 data_sf$cluster_id <- db$cluster
+# Přiřazení unikátního ID i pro body, které nespadají do žádného klasického shluku
+# (tj. db$cluster == 0 → nový jedinečný cluster_id)
+max_cluster <- max(data_sf$cluster_id)
+data_sf$cluster_id <- ifelse(
+  data_sf$cluster_id == 0,
+  seq(max_cluster + 1, length.out = sum(data_sf$cluster_id == 0)),
+  data_sf$cluster_id
+)
+
 
 # 6. Izolovanost ohnisek (centroidy)
 clusters_sf <- data_sf %>%
