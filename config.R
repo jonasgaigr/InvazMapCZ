@@ -42,6 +42,23 @@ n2k_union <- sf::st_join(
   po
 )
 
+rivers_raw <- RCzechia::reky(resolution = "high") %>%
+  sf::st_transform(
+    .,
+    5514)
+
+rivers <-
+  sf::st_crop(
+    rivers_raw,
+    evl %>% 
+      dplyr::filter(
+        NAZEV == "Beskydy"
+      ) %>%
+      sf::st_buffer(
+        .,
+        1000
+      )
+  )
 
 data_raw <- read_csv2(
   "beskydy_solidago.csv",
@@ -72,4 +89,4 @@ data_sf <- data_raw %>%
       )
     )
   )
-plot(data_sf$geometry)
+
