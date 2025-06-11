@@ -57,5 +57,19 @@ data_raw <- read_csv2(
 # 3. Převod na sf v originálním CRS (S-JTSK / Krovak East North)
 # Předpokládáme, že X, Y jsou již v EPSG:5514
 data_sf <- data_raw %>%
-  st_as_sf(coords = c("X", "Y"), crs = 5514)
+  st_as_sf(coords = c("X", "Y"), crs = 5514) %>%
+  dplyr::mutate(
+    PLOCHA_POPULACE = readr::parse_number(
+      stringr::str_extract(STRUKT_POZN, "Plocha populace:\\s*[0-9]+([.,][0-9]+)?")
+    ),
+    MANAGEMENT = stringr::str_trim(
+      stringr::str_remove(
+        stringr::str_extract(
+          STRUKT_POZN,
+          "Management:\\s*.+$"
+        ),
+        "^Management:\\s*"
+      )
+    )
+  )
 plot(data_sf$geometry)
